@@ -12,6 +12,7 @@ impl Post {
     }
 
     pub fn add_text(&mut self, text: &str) {
+        let text = self.state.as_ref().unwrap().validate(text);
         self.content.push_str(text);
     }
 
@@ -39,7 +40,9 @@ impl Post {
 trait State {
     fn request_review(self: Box<Self>) -> Box<dyn State>;
     fn approve(self: Box<Self>) -> Box<dyn State>;
-    fn add_text<'a>(&self, post: &'a Post, text: &str) -> &'a str;
+    fn validate<'a>(&self, text: &'a str) -> &'a str {
+        ""
+    }
     fn reject(self: Box<Self>) -> Box<dyn State>;
     fn content<'a>(&self, post: &'a Post) -> &'a str {
         ""
@@ -55,6 +58,10 @@ impl State for Draft {
 
     fn approve(self: Box<Self>) -> Box<dyn State> {
         self
+    }
+
+    fn validate<'a>(&self, text: &'a str) -> &'a str {
+        text
     }
 
     fn reject(self: Box<Self>) -> Box<dyn State> {
@@ -133,5 +140,8 @@ fn main() {
     assert_eq!("", post.content());
 
     post.approve();
+    assert_eq!("I ate a salad for lunch today", post.content());
+
+    post.add_text("I won't see this text");
     assert_eq!("I ate a salad for lunch today", post.content());
 }
