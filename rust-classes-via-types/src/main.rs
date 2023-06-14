@@ -79,7 +79,7 @@ fn main() {
 
     let post = post.reject();
 
-    let post = post.request_review()
+    let post = post.request_review();
 
     let post = post.approve();
 
